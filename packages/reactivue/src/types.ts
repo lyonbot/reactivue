@@ -2,7 +2,7 @@ import { ReactiveEffect, Ref } from '@vue/reactivity'
 
 // from https://unpkg.com/@vue/reactivity@3.2.47/dist/reactivity.d.ts#L75-L89
 export declare class EffectScope {
-  detached: boolean;
+  detached: boolean
   /* Excluded from this release type: _active */
   /* Excluded from this release type: effects */
   /* Excluded from this release type: cleanups */
@@ -39,7 +39,7 @@ export interface InternalInstanceState {
   hooks: Record<string, Function[]>
   initialState: Record<any, any>
   provides: Record<string, unknown>
-  scope: EffectScope | null
+  scope: EffectScope
 }
 
 export type InstanceStateMap = Record<number, InternalInstanceState>

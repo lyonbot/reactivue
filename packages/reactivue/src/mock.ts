@@ -169,3 +169,6 @@ export function inject(
     warn('inject() can only be used inside setup() or functional components.')
   }
 }
+export function hasInjectionContext() {
+  return !!getCurrentInstance()
+}

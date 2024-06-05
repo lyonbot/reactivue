@@ -1,8 +1,7 @@
 /* eslint-disable import/no-mutable-exports */
-import { Ref, ReactiveEffect, ref } from '@vue/reactivity'
-import * as vueReactivity from '@vue/reactivity'
+import { Ref, ReactiveEffect, ref, effectScope } from '@vue/reactivity'
 import { invokeLifeCycle } from './lifecycle'
-import { InstanceStateMap, InternalInstanceState, LifecycleHooks, EffectScope } from './types'
+import { InstanceStateMap, InternalInstanceState, LifecycleHooks } from './types'
 
 /**
  * When `reactivue` dependency gets updated during development
@@ -21,9 +20,6 @@ let _id = (__DEV__ && __BROWSER__ && window.__reactivue_id) || 0
 const _vueState: InstanceStateMap = (__DEV__ && __BROWSER__ && window.__reactivue_state) || {}
 if (__DEV__ && __BROWSER__)
   window.__reactivue_state = _vueState
-
-const effectScope: (detached?: boolean) => EffectScope = (vueReactivity as any).effectScope
-export const usingEffectScope = typeof effectScope === 'function'
 
 export let currentInstance: InternalInstanceState | null = null
 export let currentInstanceId: number | null = null
@@ -60,7 +56,7 @@ export const createNewInstanceWithId = (id: number, props: any, data: Ref<any> =
     hooks: {},
     initialState: {},
     provides: __BROWSER__ ? { ...window.__reactivue_context?.provides } : {},
-    scope: usingEffectScope ? effectScope() : null,
+    scope: effectScope(),
   }
   _vueState[id] = instance
 
@@ -70,10 +66,7 @@ export const createNewInstanceWithId = (id: number, props: any, data: Ref<any> =
 export const useInstanceScope = (id: number, cb: (instance: InternalInstanceState | null) => void) => {
   const prev = currentInstanceId
   const instance = setCurrentInstanceId(id)
-  if (usingEffectScope) {
-    if (!instance?.isUnmounted) instance?.scope?.run(() => cb(instance))
-  }
-  else { cb(instance) }
+  if (!instance?.isUnmounted) instance?.scope.run(() => cb(instance))
   setCurrentInstanceId(prev)
 }
 
@@ -85,7 +78,7 @@ const unmount = (id: number) => {
     effect.stop()
 
   invokeLifeCycle(LifecycleHooks.UNMOUNTED, _vueState[id])
-  if (usingEffectScope) _vueState[id].scope!.stop()
+  _vueState[id].scope!.stop()
   _vueState[id].isUnmounted = true
 
   // release the ref

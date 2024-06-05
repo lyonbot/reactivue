@@ -1,11 +1,8 @@
 // ported from https://github.com/vuejs/vue-next/blob/master/packages/runtime-core/src/apiWatch.ts
 
 /* eslint-disable array-callback-return */
-import { effect, Ref, ComputedRef, ReactiveEffectOptions, isRef, isReactive, stop } from '@vue/reactivity'
-import { isFunction, isArray, NOOP, isObject, remove, hasChanged } from '@vue/shared'
+import { Ref, ComputedRef, ReactiveEffectOptions } from '@vue/reactivity'
 import { watch as _watch, watchEffect as _watchEffect } from '@vue/runtime-core'
-import { currentInstance, recordInstanceBoundEffect, usingEffectScope } from './component'
-import { warn, callWithErrorHandling, callWithAsyncErrorHandling } from './errorHandling'
 
 export type WatchEffect = (onInvalidate: InvalidateCbRegistrator) => void
 
@@ -34,7 +31,6 @@ type MapOldSources<T, Immediate> = {
 }
 
 type InvalidateCbRegistrator = (cb: () => void) => void
-const INITIAL_WATCHER_VALUE = {}
 
 export interface WatchOptionsBase {
   flush?: 'pre' | 'post' | 'sync'
@@ -52,8 +48,7 @@ export function watchEffect(
   effect: WatchEffect,
   options?: WatchOptionsBase,
 ): WatchStopHandle {
-  if (usingEffectScope) return _watchEffect(effect, options)
-  return doWatch(effect, null, options)
+  return _watchEffect(effect, options)
 }
 
 // overload #1: array of multiple sources + cb
@@ -92,197 +87,5 @@ export function watch<T = any>(
   cb: WatchCallback<T>,
   options?: WatchOptions,
 ): WatchStopHandle {
-  if (usingEffectScope) return _watch(source, cb as any, options)
-  return doWatch(source, cb, options)
-}
-
-function doWatch(
-  source: WatchSource | WatchSource[] | WatchEffect,
-  cb: WatchCallback | null,
-  { immediate, deep, flush, onTrack, onTrigger }: WatchOptions = {},
-): WatchStopHandle {
-  const instance = currentInstance
-
-  let getter: () => any
-  let forceTrigger = false
-  let isMultiSource = false
-  if (isRef(source)) {
-    getter = () => (source as Ref).value
-    // @ts-expect-error
-    forceTrigger = !!(source as Ref)._shallow
-  }
-  else if (isReactive(source)) {
-    getter = () => source
-    deep = true
-  }
-  else if (isArray(source)) {
-    isMultiSource = true
-    forceTrigger = source.some(isReactive)
-    getter = () =>
-      source.map((s) => {
-        if (isRef(s))
-          return s.value
-        else if (isReactive(s))
-          return traverse(s)
-        else if (isFunction(s))
-          return callWithErrorHandling(s, instance, 'watch getter')
-        else
-          __DEV__ && warn('invalid source')
-      })
-  }
-  else if (isFunction(source)) {
-    if (cb) {
-      // getter with cb
-      getter = () =>
-        callWithErrorHandling(source, instance, 'watch getter')
-    }
-    else {
-      // no cb -> simple effect
-      getter = () => {
-        if (instance && instance.isUnmounted)
-          return
-
-        if (cleanup)
-          cleanup()
-
-        return callWithErrorHandling(
-          source,
-          instance,
-          'watch callback',
-          [onInvalidate],
-        )
-      }
-    }
-  }
-  else {
-    getter = NOOP
-  }
-
-  if (cb && deep) {
-    const baseGetter = getter
-    getter = () => traverse(baseGetter())
-  }
-
-  let cleanup: () => void
-  const onInvalidate: InvalidateCbRegistrator = (fn: () => void) => {
-    cleanup = runner.effect.onStop = () => {
-      callWithErrorHandling(fn, instance, 'watch cleanup')
-    }
-  }
-
-  let oldValue = isMultiSource ? [] : INITIAL_WATCHER_VALUE
-  const job = () => {
-    if (!runner.effect.active)
-      return
-
-    if (cb) {
-      // watch(source, cb)
-      const newValue = runner()
-      if (
-        deep
-        || forceTrigger
-        || (isMultiSource
-          ? (newValue as any[]).some((v, i) =>
-            hasChanged(v, (oldValue as any[])[i]),
-          )
-          : hasChanged(newValue, oldValue))
-      ) {
-        // cleanup before running cb again
-        if (cleanup)
-          cleanup()
-
-        callWithAsyncErrorHandling(cb, instance, 'watch callback', [
-          newValue,
-          // pass undefined as the old value when it's changed for the first time
-          oldValue === INITIAL_WATCHER_VALUE ? undefined : oldValue,
-          onInvalidate,
-        ])
-        oldValue = newValue
-      }
-    }
-    else {
-      // watchEffect
-      runner()
-    }
-  }
-
-  // important: mark the job as a watcher callback so that scheduler knows
-  // it is allowed to self-trigger (#1727)
-  job.allowRecurse = !!cb
-
-  let scheduler: ReactiveEffectOptions['scheduler']
-  if (flush === 'sync') {
-    scheduler = job
-  }
-  else if (flush === 'post') {
-    scheduler = () => job()
-    // TODO: scheduler = () => queuePostRenderEffect(job, instance && instance.suspense)
-  }
-  else {
-    // default: 'pre'
-    scheduler = () => {
-      if (!instance) {
-        // TODO: queuePreFlushCb(job)
-        job()
-      }
-      else {
-        // with 'pre' option, the first call must happen before
-        // the component is mounted so it is called synchronously.
-        job()
-      }
-    }
-  }
-
-  const runner = effect(getter, {
-    lazy: true,
-    onTrack,
-    onTrigger,
-    scheduler,
-  })
-
-  recordInstanceBoundEffect(runner.effect)
-
-  // initial run
-  if (cb) {
-    if (immediate)
-      job()
-    else
-      oldValue = runner()
-  }
-  else {
-    runner()
-  }
-
-  return () => {
-    stop(runner)
-    if (instance)
-      remove(instance.effects!, runner.effect)
-  }
-}
-
-function traverse(value: unknown, seen: Set<unknown> = new Set()) {
-  if (!isObject(value) || seen.has(value))
-    return value
-
-  seen.add(value)
-  if (isArray(value)) {
-    for (let i = 0; i < value.length; i++)
-      traverse(value[i], seen)
-  }
-  else if (value instanceof Map) {
-    value.forEach((_, key) => {
-      // to register mutation dep for existing keys
-      traverse(value.get(key), seen)
-    })
-  }
-  else if (value instanceof Set) {
-    value.forEach((v) => {
-      traverse(v, seen)
-    })
-  }
-  else {
-    for (const key of Object.keys(value))
-      traverse(value[key], seen)
-  }
-  return value
+  return _watch(source, cb as any, options)
 }

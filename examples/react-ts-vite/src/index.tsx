@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import './main.css'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { createApp } from 'reactivue'
 import { createClient } from 'villus'
 import { createPinia } from 'pinia'
@@ -67,4 +67,4 @@ function App(Props: { name: string }) {
   )
 }
 
-render(<App name="Jane" />, document.getElementById('app'))
+createRoot(document.getElementById('app')!).render(<App name="Jane" />)
