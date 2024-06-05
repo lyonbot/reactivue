@@ -59,6 +59,31 @@ const MyCounter = defineComponent(
 render(<MyCounter value={10}>, el)
 ```
 
+You can also merge the `render` function into `setup` function like this:
+
+```tsx
+const MyCounter = defineComponent(
+  // setup function in Vue, returns a render function
+  (props: Props) => {
+    const counter = ref(props.value)
+    const doubled = computed(() => counter.value * 2)
+    const inc = () => counter.value += 1
+
+    onUnmounted(() => console.log('Goodbye World'))
+
+    // render function
+    return () => {
+      return (
+        <div>
+          <div>{counter.value} x 2 = {doubled.value}</div>
+          <button onClick={inc}>Increase</button>
+        </div>
+      )
+    }
+  }
+)
+```
+
 ### Hooks
 
 You can use it as a hook as well.

@@ -1,24 +1,27 @@
-import { UnwrapRef, reactive, ref, readonly, unref } from '@vue/reactivity'
-import { useState, useEffect } from 'react'
+import { UnwrapRef, ref, readonly, unref, shallowReactive } from '@vue/reactivity'
+import { useState, useEffect, useReducer } from 'react'
 import { getNewInstanceId, createNewInstanceWithId, useInstanceScope, unmountInstance } from './component'
 import { watch } from './watch'
 import { invokeLifeCycle } from './lifecycle'
 import { LifecycleHooks } from './types'
 
-export function useSetup<State extends Record<any, any>, Props = {}>(
+export const USE_SETUP_NO_UPDATE = 1
+
+export function useSetup<State, Props = {}>(
   setupFunction: (props: Props) => State,
   ReactProps?: Props,
+  flags = 0,
 ): UnwrapRef<State> {
   const id = useState(getNewInstanceId)[0]
 
-  const setTick = useState(0)[1]
+  const forceUpdate = useReducer(v => (v + 1) & 0xFFFFFFFF, 0)[1] as () => void
 
   const createState = () => {
-    const props = reactive({ ...(ReactProps || {}) }) as any
+    const props = shallowReactive({ ...(ReactProps || {}) }) as any
     const instance = createNewInstanceWithId(id, props)
 
     useInstanceScope(id, () => {
-      const setupState = setupFunction(readonly(props)) ?? {}
+      const setupState: Record<any, any> = setupFunction(readonly(props)) ?? {}
       const data = ref(setupState)
 
       invokeLifeCycle(LifecycleHooks.BEFORE_MOUNT)
@@ -37,10 +40,8 @@ export function useSetup<State extends Record<any, any>, Props = {}>(
   // run setup function
   const [state, setState] = useState(createState)
 
-  // sync props changes
-  useEffect(() => {
-    if (!ReactProps) return
-
+  // sync props changes, in each rendering
+  if (ReactProps) {
     useInstanceScope(id, (instance) => {
       if (!instance)
         return
@@ -48,7 +49,7 @@ export function useSetup<State extends Record<any, any>, Props = {}>(
       for (const key of Object.keys(ReactProps))
         props[key] = (ReactProps as any)[key]
     })
-  }, [ReactProps])
+  }
 
   // trigger React re-render on data changes
   useEffect(() => {
@@ -66,7 +67,7 @@ export function useSetup<State extends Record<any, any>, Props = {}>(
           return
 
         const props = Object.assign({}, (ReactProps || {})) as any
-        const setup = setupFunction(readonly(props))
+        const setup = setupFunction(readonly(props)) as Record<any, any>
 
         for (const key of Object.keys(setup)) {
           if (isChanged)
@@ -88,7 +89,7 @@ export function useSetup<State extends Record<any, any>, Props = {}>(
     useInstanceScope(id, (instance) => {
       if (!instance)
         return
-      
+
       // Avoid repeated execution of onMounted and watch after hmr updates in development mode
       if (instance.isMounted)
         return
@@ -98,25 +99,27 @@ export function useSetup<State extends Record<any, any>, Props = {}>(
       invokeLifeCycle(LifecycleHooks.MOUNTED)
 
       const { data } = instance
-      watch(
-        data,
-        () => {
-          /**
-           * Prevent triggering rerender when component
-           * is about to unmount or really unmounted
-           */
-          if (instance.isUnmounting)
-            return
+      if (!(USE_SETUP_NO_UPDATE & flags)) {
+        watch(
+          data,
+          () => {
+            /**
+             * Prevent triggering rerender when component
+             * is about to unmount or really unmounted
+             */
+            if (instance.isUnmounting)
+              return
 
-          useInstanceScope(id, () => {
-            invokeLifeCycle(LifecycleHooks.BEFORE_UPDATE, instance)
-            // trigger React update
-            setTick(+new Date())
-            invokeLifeCycle(LifecycleHooks.UPDATED, instance)
-          })
-        },
-        { deep: true, flush: 'post' },
-      )
+            useInstanceScope(id, () => {
+              invokeLifeCycle(LifecycleHooks.BEFORE_UPDATE, instance)
+              // trigger React update
+              forceUpdate()
+              invokeLifeCycle(LifecycleHooks.UPDATED, instance)
+            })
+          },
+          { deep: true, flush: 'post' },
+        )
+      }
     })
 
     return () => {
