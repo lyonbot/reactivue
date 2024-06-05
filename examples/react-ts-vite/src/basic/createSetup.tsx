@@ -1,5 +1,5 @@
 import React from 'react'
-import { createSetup, ref, computed, onUnmounted } from 'reactivue'
+import { createSetup, ref, computed, onUnmounted } from '@lyonbot/reactivue'
 
 interface Props {
   value: number

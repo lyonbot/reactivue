@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { defineComponent } from 'reactivue'
+import { defineComponent } from '@lyonbot/reactivue'
 import { useQuery } from 'villus'
 const Posts = `
 {

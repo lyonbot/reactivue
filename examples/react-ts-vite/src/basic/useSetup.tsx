@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { useSetup, ref, computed, watch } from 'reactivue'
+import { useSetup, ref, computed, watch } from '@lyonbot/reactivue'
 
 export function Counter(Props: { value: number }) {
   const state = useSetup(

@@ -7,9 +7,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      vue: 'reactivue',
-      '@vue/composition-api': 'reactivue',
-      '@vue/runtime-dom': 'reactivue',
+      'vue': '@lyonbot/reactivue',
+      '@vue/composition-api': '@lyonbot/reactivue',
+      '@vue/runtime-dom': '@lyonbot/reactivue',
     },
   },
   /**
@@ -18,6 +18,6 @@ export default defineConfig({
    * For some reason Vite don't optimizes locally linked deps.
    */
   optimizeDeps: {
-    include: ['reactivue'],
+    include: ['@lyonbot/reactivue'],
   },
 })

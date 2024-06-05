@@ -10,8 +10,13 @@
 
 
 <pre align="center">
-npm i <b>reactivue</b>
+npm i <b>@lyonbot/reactivue</b>
 </pre>
+
+> [!NOTE]  
+> This is a modified version by @lyonbot which supports React 18 and @vue/reactivity@3.4
+>
+> Make reactivity great again!
 
 <br/>
 
@@ -26,7 +31,7 @@ npm i <b>reactivue</b>
 
 ```tsx
 import React from 'React'
-import { defineComponent, ref, computed, onUnmounted } from 'reactivue'
+import { defineComponent, ref, computed, onUnmounted } from '@lyonbot/reactivue'
 
 interface Props {
   value: number
@@ -93,7 +98,7 @@ You can use it as a hook as well.
 
 ```tsx
 import React from 'React'
-import { useSetup, ref, computed, onUnmounted } from 'reactivue'
+import { useSetup, ref, computed, onUnmounted } from '@lyonbot/reactivue'
 
 interface Props {
   value: number
@@ -131,7 +136,7 @@ To reuse the composition logics, `createSetup` is provided as a factory to creat
 
 ```ts
 // mySetup.ts
-import { createSetup, ref, computed, onUnmounted } from 'reactivue'
+import { createSetup, ref, computed, onUnmounted } from '@lyonbot/reactivue'
 
 export interface Props {
   value: number
@@ -179,7 +184,7 @@ To use reactivue in Preact apps, just replace `reactivue` import with `reactivue
 
 ```diff
 import { h } from 'preact'
--import { defineComponent, ref, computed, onUnmounted } from 'reactivue'
+-import { defineComponent, ref, computed, onUnmounted } from '@lyonbot/reactivue'
 +import { defineComponent, ref, computed, onUnmounted } from 'reactivue/preact'
 ```
 
@@ -198,8 +203,8 @@ Add following code to `vite.config.js`
 {
   /* ... */
   alias: {
-    'vue': 'reactivue',
-    '@vue/runtime-dom': 'reactivue',
+    'vue': '@lyonbot/reactivue',
+    '@vue/runtime-dom': '@lyonbot/reactivue',
   }
 }
 ```
@@ -227,8 +232,8 @@ const config = {
   /* ... */
   resolve: { 
     alias: { 
-      'vue': 'reactivue',
-      '@vue/runtime-dom': 'reactivue',
+      'vue': '@lyonbot/reactivue',
+      '@vue/runtime-dom': '@lyonbot/reactivue',
     },
   }
 }
@@ -244,8 +249,8 @@ Parcel uses the standard `package.json` file to read configuration options under
 ```js
 {
   "alias": {
-    "vue": "reactivue",
-    "@vue/runtime-dom": "reactivue",
+    "vue": "@lyonbot/reactivue",
+    "@vue/runtime-dom": "@lyonbot/reactivue",
   },
 }
 ```
@@ -265,8 +270,8 @@ module.exports = {
   plugins: [
     alias({
       entries: [
-        { find: 'vue', replacement: 'reactivue' },
-        { find: '@vue/runtime-dom', replacement: 'reactivue' }
+        { find: 'vue', replacement: '@lyonbot/reactivue' },
+        { find: '@vue/runtime-dom', replacement: '@lyonbot/reactivue' }
       ]
     })
   ]
@@ -284,8 +289,8 @@ Jest allows the rewriting of module paths similar to bundlers. These rewrites ar
 ```js
 {
   "moduleNameMapper": {
-    "^vue$": "reactivue",
-    "^@vue/runtime-dom$": "reactivue",
+    "^vue$": "@lyonbot/reactivue",
+    "^@vue/runtime-dom$": "@lyonbot/reactivue",
   }
 }
 ```
@@ -297,7 +302,7 @@ Jest allows the rewriting of module paths similar to bundlers. These rewrites ar
 Installing Vue plugins are almost identical to Vue. Just simply create your root instance with `createApp` function and register your plugins as you do in Vue apps. **You don't need to call `app.mount`**. Your Vue plugins will be available in all your setup functions.
 
 ```ts
-import { createApp } from 'reactivue'
+import { createApp } from '@lyonbot/reactivue'
 import { createPinia } from 'pinia'
 
 const app = createApp()
@@ -325,7 +330,7 @@ The reactivity system APIs are direct re-exported from `@vue/reactivity`, they s
 
 ````ts
 // the following two line are equivalent.
-import { ref, reactive, computed } from 'reactivue'
+import { ref, reactive, computed } from '@lyonbot/reactivue'
 import { ref, reactive, computed } from '@vue/reactivity'
 ````
 

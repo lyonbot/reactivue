@@ -1,9 +1,13 @@
 {
-  "name": "reactivue",
+  "name": "@lyonbot/reactivue",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
   "description": "Using Vue Composition API in React components.",
   "author": "Anthony Fu<https://github.com/antfu>",
   "license": "MIT",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "browser": "dist/index.module.js",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
@@ -36,7 +40,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/antfu/reactivue.git"
+    "url": "git+https://github.com/lyonbot/reactivue.git"
   },
   "keywords": [
     "vue",
@@ -46,9 +50,9 @@
     "reactivity"
   ],
   "bugs": {
-    "url": "https://github.com/antfu/reactivue/issues"
+    "url": "https://github.com/lyonbot/reactivue/issues"
   },
-  "homepage": "https://github.com/antfu/reactivue#readme",
+  "homepage": "https://github.com/lyonbot/reactivue#readme",
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c",

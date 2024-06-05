@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { defineComponent, ref } from 'reactivue'
+import { defineComponent, ref } from '@lyonbot/reactivue'
 import { useHead } from '@vueuse/head'
 
 export const Head = defineComponent(

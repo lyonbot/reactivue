@@ -1,6 +1,6 @@
 
 import React from 'react'
-import { defineComponent } from 'reactivue'
+import { defineComponent } from '@lyonbot/reactivue'
 import { useMainStore } from './store'
 
 export const Pinia = defineComponent(

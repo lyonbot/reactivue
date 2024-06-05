@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './main.css'
 import { createRoot } from 'react-dom/client'
-import { createApp } from 'reactivue'
+import { createApp } from '@lyonbot/reactivue'
 import { createClient } from 'villus'
 import { createPinia } from 'pinia'
 import { createHead } from '@vueuse/head'
