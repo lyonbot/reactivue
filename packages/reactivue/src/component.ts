@@ -1,5 +1,5 @@
 /* eslint-disable import/no-mutable-exports */
-import { Ref, ReactiveEffect, ref, stop } from '@vue/reactivity'
+import { Ref, ReactiveEffect, ref } from '@vue/reactivity'
 import * as vueReactivity from '@vue/reactivity'
 import { invokeLifeCycle } from './lifecycle'
 import { InstanceStateMap, InternalInstanceState, LifecycleHooks, EffectScope } from './types'
@@ -22,7 +22,7 @@ const _vueState: InstanceStateMap = (__DEV__ && __BROWSER__ && window.__reactivu
 if (__DEV__ && __BROWSER__)
   window.__reactivue_state = _vueState
 
-const effectScope: (detached?: boolean) => EffectScope = (vueReactivity as any)['effectScope']
+const effectScope: (detached?: boolean) => EffectScope = (vueReactivity as any).effectScope
 export const usingEffectScope = typeof effectScope === 'function'
 
 export let currentInstance: InternalInstanceState | null = null
@@ -73,7 +73,7 @@ export const useInstanceScope = (id: number, cb: (instance: InternalInstanceStat
   if (usingEffectScope) {
     if (!instance?.isUnmounted) instance?.scope?.run(() => cb(instance))
   }
-  else cb(instance)
+  else { cb(instance) }
   setCurrentInstanceId(prev)
 }
 
@@ -82,7 +82,7 @@ const unmount = (id: number) => {
 
   // unregister all the computed/watch effects
   for (const effect of _vueState[id].effects || [])
-    stop(effect)
+    effect.stop()
 
   invokeLifeCycle(LifecycleHooks.UNMOUNTED, _vueState[id])
   if (usingEffectScope) _vueState[id].scope!.stop()

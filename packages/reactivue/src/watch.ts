@@ -165,14 +165,14 @@ function doWatch(
 
   let cleanup: () => void
   const onInvalidate: InvalidateCbRegistrator = (fn: () => void) => {
-    cleanup = runner.options.onStop = () => {
+    cleanup = runner.effect.onStop = () => {
       callWithErrorHandling(fn, instance, 'watch cleanup')
     }
   }
 
   let oldValue = isMultiSource ? [] : INITIAL_WATCHER_VALUE
   const job = () => {
-    if (!runner.active)
+    if (!runner.effect.active)
       return
 
     if (cb) {
@@ -240,7 +240,7 @@ function doWatch(
     scheduler,
   })
 
-  recordInstanceBoundEffect(runner)
+  recordInstanceBoundEffect(runner.effect)
 
   // initial run
   if (cb) {
@@ -256,7 +256,7 @@ function doWatch(
   return () => {
     stop(runner)
     if (instance)
-      remove(instance.effects!, runner)
+      remove(instance.effects!, runner.effect)
   }
 }
 
