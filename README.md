@@ -86,9 +86,9 @@ const MyCounter = defineComponent(
 
 ### Hooks
 
-You can use it as a hook as well.
+You can use it as a React hook as well.
 
-> The `defineComponent` factory is actually a sugar to and equivalent to the following code.
+> Please prefer `defineComponent` over `useSetup` because it has better performance, less re-rendering (because it collects reactivity dependencies).
 
 
 ```tsx
