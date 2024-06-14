@@ -46,8 +46,16 @@ export function useSetup<State, Props = {}>(
       if (!instance)
         return
       const { props } = instance
-      for (const key of Object.keys(ReactProps))
+      const oldKeys = Object.keys(props)
+      for (const key of Object.keys(ReactProps)) {
         props[key] = (ReactProps as any)[key]
+
+        const oldIndex = oldKeys.indexOf(key)
+        if (oldIndex !== -1)
+          oldKeys.splice(oldIndex, 1)
+      }
+      for (const key of oldKeys)
+        delete props[key]
     })
   }
 

@@ -78,7 +78,7 @@ const unmount = (id: number) => {
     effect.stop()
 
   invokeLifeCycle(LifecycleHooks.UNMOUNTED, _vueState[id])
-  _vueState[id].scope!.stop()
+  _vueState[id].scope.stop()
   _vueState[id].isUnmounted = true
 
   // release the ref
