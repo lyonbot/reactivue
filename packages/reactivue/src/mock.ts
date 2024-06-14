@@ -57,7 +57,7 @@ export function createApp() {
   const installedPlugins = new Set()
 
   const app = (context.app = {
-    version: '3.0.0',
+    version: '3.4.0',
 
     get config() {
       return context.config
