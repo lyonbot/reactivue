@@ -1,22 +1,22 @@
+> [!NOTE]  
+> This is a modified version by @lyonbot which supports React 18 and @vue/reactivity@3.4
+>
+> Make reactivity great again!
+
 <p align="center">
 <img src="./screenshots/logo.svg" height="180"/></p>
 
 <p align="center">Use Vue Composition API in React components</p>
 
 <p align="center">
-<a href="https://www.npmjs.com/package/reactivue"><img src="https://img.shields.io/npm/v/reactivue?color=53c2df&label"/></a>
-<a href="https://bundlephobia.com/result?p=reactivue@latest"><img src="https://img.shields.io/bundlephobia/minzip/reactivue?color=40b983&label"/></a>
+<a href="https://www.npmjs.com/package/@lyonbot/reactivue"><img src="https://img.shields.io/npm/v/@lyonbot/reactivue?color=53c2df&label"/></a>
+<a href="https://bundlephobia.com/result?p=@lyonbot/reactivue@latest"><img src="https://img.shields.io/bundlephobia/minzip/@lyonbot/reactivue?color=40b983&label"/></a>
 </p>
 
 
 <pre align="center">
 npm i <b>@lyonbot/reactivue</b>
 </pre>
-
-> [!NOTE]  
-> This is a modified version by @lyonbot which supports React 18 and @vue/reactivity@3.4
->
-> Make reactivity great again!
 
 <br/>
 
